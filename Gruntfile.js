@@ -26,7 +26,11 @@ module.exports = function (grunt) {
 				config: 'config.xml',
 				cordova: '.cordova',
 				path: 'phonegap',
-				plugins: [],
+				plugins: [
+					'https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git',
+					'https://git-wip-us.apache.org/repos/asf/cordova-plugin-vibration.git',
+					'https://git-wip-us.apache.org/repos/asf/cordova-plugin-file.git'
+				],
 				platforms: ['ios', 'android'],
 				verbose: false
 			}

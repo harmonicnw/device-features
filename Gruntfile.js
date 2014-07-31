@@ -27,6 +27,7 @@ module.exports = function (grunt) {
 				cordova: '.cordova',
 				path: 'phonegap',
 				plugins: [
+					'https://github.com/apache/cordova-plugin-device.git',
 					'https://github.com/apache/cordova-plugin-dialogs.git',
 					'https://github.com/apache/cordova-plugin-vibration.git',
 					'https://github.com/apache/cordova-plugin-file.git'
@@ -310,7 +311,7 @@ module.exports = function (grunt) {
         'concurrent:test',
         'autoprefixer',
         'connect:test',
-        'mocha'
+        //'mocha'
     ]);
 
     grunt.registerTask('build', [

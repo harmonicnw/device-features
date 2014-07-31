@@ -15,7 +15,7 @@
 <div class="wrapper">
     <h1>Device Feature test</h1>
     <ul>
-    	<li><a href="#" onclick="alert('basic javascript alert'); return false">JS alert</a></li>
+    	<li><a id="showDevice" href="#">Show device in alert</a></li>
     	<li><a id="vibrateLink" href="#">Vibrate</a></li>
     	<li><a id="beepLink" href="#">Beep</a></li>
     	<li>Value: <input id="myInput" type="text"> <input id="myJSONButton" type="button" value="JSON"> <input id="myButton" type="button" value="save"></li>
@@ -27,7 +27,8 @@
 
 <script type="text/javascript">
 	// include phonegap desktop javascript if on local dev server
-	if ( document.location.toString().indexOf('192.168.1.100') != -1 || document.location.indexOf('localhost') ) {
+	var loc = document.location.toString();
+	if ( loc.indexOf('10.1.10.97') != -1 || loc.indexOf('localhost') != -1 || loc.indexOf('127.0.0.1') != -1 ) {
 		document.write('<script type="text/javascript" src="scripts/phonegap-desktop.js"><\/script>');
 	}
 </script>

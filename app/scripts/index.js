@@ -69,6 +69,16 @@ function initApp() {
 		}
 		alert(returnVal);
 	}
+	
+	document.getElementById("showDevice").onclick = function() {
+		//alert("platform = " + device.platform);
+		navigator.notification.alert(
+			"Your platform is: " + device.platform,
+			function(){},
+			'Detect Platform',
+			'Got it.'
+		);
+	}
 }
 
 function IsJsonString(str) {

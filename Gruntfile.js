@@ -27,9 +27,9 @@ module.exports = function (grunt) {
 				cordova: '.cordova',
 				path: 'phonegap',
 				plugins: [
-					'https://git-wip-us.apache.org/repos/asf/cordova-plugin-dialogs.git',
-					'https://git-wip-us.apache.org/repos/asf/cordova-plugin-vibration.git',
-					'https://git-wip-us.apache.org/repos/asf/cordova-plugin-file.git'
+					'https://github.com/apache/cordova-plugin-dialogs.git',
+					'https://github.com/apache/cordova-plugin-vibration.git',
+					'https://github.com/apache/cordova-plugin-file.git'
 				],
 				platforms: ['ios', 'android'],
 				verbose: false
@@ -145,9 +145,12 @@ module.exports = function (grunt) {
         },
         // not used since Uglify task does concat,
         // but still available if needed
-        /*concat: {
-            dist: {}
-        },*/
+        concat: {
+            dist: {
+	            src: ['<%= yeoman.app %>/scripts/index.js'],
+				dest: '<%= yeoman.dist %>/scripts/index.js'
+            }
+        },
         'bower-install': {
             app: {
                 html: '<%= yeoman.app %>/index.html',
@@ -157,9 +160,12 @@ module.exports = function (grunt) {
         // not enabled since usemin task does concat and uglify
         // check index.html to edit your build targets
         // enable this task if you prefer defining your build targets here
-        /*uglify: {
-            dist: {}
-        },*/
+        uglify: {
+            dist: {
+            	src: ['<%= yeoman.dist %>/scripts/index.js'],
+				dest: '<%= yeoman.dist %>/scripts/index.js'
+			}
+        },
         rev: {
             dist: {
                 files: {
@@ -212,14 +218,14 @@ module.exports = function (grunt) {
             //
             //     <!-- build:css({.tmp,app}) styles/main.css -->
             //
-            //dist: {
-            //     files: {
-            //        '<%= yeoman.dist %>/styles/main.css': [
-            //             '.tmp/styles/{,*/}*.css',
-            //             '<%= yeoman.app %>/styles/{,*/}*.css'
-            //        ]
-            //     }
-            //}
+            dist: {
+                 files: {
+                    '<%= yeoman.dist %>/styles/style.css': [
+                         '.tmp/styles/{,*/}*.css',
+                         '<%= yeoman.app %>/styles/{,*/}*.css'
+                    ]
+                 }
+            }
         },
         htmlmin: {
             dist: {
@@ -255,7 +261,9 @@ module.exports = function (grunt) {
                         '.htaccess',
                         'images/{,*/}*.{webp,gif}',
 						'res/**',
-                        'styles/fonts/{,*/}*.*'
+                        'styles/fonts/{,*/}*.*',
+                        'scripts/phonegap-desktop.js',
+                        'debugdata.json'
                     ]
                 }]
             },
@@ -307,14 +315,14 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
-        'useminPrepare',
+        //'useminPrepare',
         'concurrent:dist',
         'autoprefixer',
         'concat',
         'cssmin',
         'uglify',
         'copy:dist',
-        'rev',
+        //'rev',
         'usemin'
     ]);
 
@@ -324,7 +332,7 @@ module.exports = function (grunt) {
 	]);
 
     grunt.registerTask('default', [
-        'jshint',
+        //'jshint',
         'test',
         'build'
     ]);

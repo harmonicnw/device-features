@@ -27,9 +27,9 @@
     <preference name="android-installLocation" value="auto" />
     
     <!-- plugins -->
-    <gap:plugin name="org.apache.cordova.core.dialogs" />
-    <gap:plugin name="org.apache.cordova.core.vibration" />
-    <gap:plugin name="org.apache.cordova.core.file" />
+    <gap:plugin name="org.apache.cordova.dialogs" />
+    <gap:plugin name="org.apache.cordova.vibration" />
+    <gap:plugin name="org.apache.cordova.file" />
     
     <icon src="icon.png" />
     <icon gap:density="ldpi" gap:platform="android" src="res/icon/android/icon-36-ldpi.png" />

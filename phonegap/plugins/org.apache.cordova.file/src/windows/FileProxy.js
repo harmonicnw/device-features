@@ -281,8 +281,8 @@ module.exports = {
                 if (flag.create === true && flag.exclusive === true) {
                     storageFolder.createFolderAsync(path, Windows.Storage.CreationCollisionOption.failIfExists).done(
                         function (storageFolder) {
-                            win(new DirectoryEntry(storageFolder.name, storageFolder.path, getFilesystemFromPath(storageFolder.path)));
-                        }, function () {
+                            win(new DirectoryEntry(storageFolder.name, nativePathToCordova(storageFolder.path), getFilesystemFromPath(storageFolder.path)));
+                        }, function (err) {
                             fail(FileError.PATH_EXISTS_ERR);
                         }
                     );
@@ -349,7 +349,7 @@ module.exports = {
                                         return;
                                     }
                                     storageFolderTop = storageFolder;
-                                    return storageFolder.createFileQuery().getFilesAsync();
+                                    return storageFolder.getFilesAsync();
                                 }, function () {
                                     fail(FileError.INVALID_MODIFICATION_ERR);
 
@@ -358,7 +358,7 @@ module.exports = {
                             ).then(function (fileList) {
                                 if (fileList) {
                                     if (fileList.length === 0) {
-                                        return storageFolderTop.createFolderQuery().getFoldersAsync();
+                                        return storageFolderTop.getFoldersAsync();
                                     } else {
                                         fail(FileError.INVALID_MODIFICATION_ERR);
                                     }
@@ -487,14 +487,14 @@ module.exports = {
         getFolderFromPathAsync(path).then(function (storageFolder) {
             var promiseArr = [];
             var index = 0;
-            promiseArr[index++] = storageFolder.createFileQuery().getFilesAsync().then(function (fileList) {
+            promiseArr[index++] = storageFolder.getFilesAsync().then(function (fileList) {
                 if (fileList !== null) {
                     for (var i = 0; i < fileList.length; i++) {
                         result.push(new FileEntry(fileList[i].name, fileList[i].path, getFilesystemFromPath (fileList[i].path)));
                     }
                 }
             });
-            promiseArr[index++] = storageFolder.createFolderQuery().getFoldersAsync().then(function (folderList) {
+            promiseArr[index++] = storageFolder.getFoldersAsync().then(function (folderList) {
                 if (folderList !== null) {
                     for (var j = 0; j < folderList.length; j++) {
                         result.push(new DirectoryEntry(folderList[j].name, folderList[j].path, getFilesystemFromPath(folderList[j].path)));
@@ -641,7 +641,7 @@ module.exports = {
                     function (sFolder) {
                         copyFiles = function (srcPath, parentPath) {
                             var coreCopy = function (storageFolderTop, complete) {
-                                storageFolderTop.createFolderQuery().getFoldersAsync().then(function (folderList) {
+                                storageFolderTop.getFoldersAsync().then(function (folderList) {
                                     var folderPromiseArr = [];
                                     if (folderList.length === 0) { complete(); }
                                     else {
@@ -667,7 +667,7 @@ module.exports = {
                                 var fileListTop = null;
                                 getFolderFromPathAsync(srcPath).then(function (storageFolder) {
                                     storageFolderTop = storageFolder;
-                                    return storageFolder.createFileQuery().getFilesAsync();
+                                    return storageFolder.getFilesAsync();
                                 }).then(function (fileList) {
                                     fileListTop = fileList;
                                     if (fileList) {
@@ -766,7 +766,7 @@ module.exports = {
                     function (sFolder) {
                         moveFiles = function (srcPath, parentPath) {
                             var coreMove = function (storageFolderTop, complete) {
-                                storageFolderTop.createFolderQuery().getFoldersAsync().then(function (folderList) {
+                                storageFolderTop.getFoldersAsync().then(function (folderList) {
                                     var folderPromiseArr = [];
                                     if (folderList.length === 0) {
                                         // If failed, we must cancel the deletion of folders & files.So here wo can't delete the folder.
@@ -792,7 +792,7 @@ module.exports = {
                                 var storageFolderTop = null;
                                 getFolderFromPathAsync(srcPath).then(function (storageFolder) {
                                     storageFolderTop = storageFolder;
-                                    return storageFolder.createFileQuery().getFilesAsync();
+                                    return storageFolder.getFilesAsync();
                                 }).then(function (fileList) {
                                     var filePromiseArr = [];
                                     getFolderFromPathAsync(parentPath).then(function (dstStorageFolder) {
@@ -821,8 +821,8 @@ module.exports = {
                                 fail(FileError.INVALID_MODIFICATION_ERR);
                             }).then(function (newStorageFolder) {
                                 //can't move onto directory that is not empty
-                                newStorageFolder.createFileQuery().getFilesAsync().then(function (fileList) {
-                                    newStorageFolder.createFolderQuery().getFoldersAsync().then(function (folderList) {
+                                newStorageFolder.getFilesAsync().then(function (fileList) {
+                                    newStorageFolder.getFoldersAsync().then(function (folderList) {
                                         if (fileList.length !== 0 || folderList.length !== 0) {
                                             fail(FileError.INVALID_MODIFICATION_ERR);
                                             return;
@@ -895,9 +895,8 @@ module.exports = {
 
     resolveLocalFileSystemURI: function (success, fail, args) {
 
-        var uri = cordovaPathToNative(args[0]);
-
-        var path = uri;
+        var uri = args[0];
+        var path = cordovaPathToNative(uri);
 
         // support for file name with parameters
         if (/\?/g.test(path)) {
@@ -909,13 +908,21 @@ module.exports = {
             path = decodeURI(path);
         }
 
-        // support for special path start with file:///
-        if (path.substr(0, 8) == "file:///") {
-            path = Windows.Storage.ApplicationData.current.localFolder.path + "\\" + String(path).substr(8);
+        var msappdataLocalPrefix = 'ms-appdata:///local/',
+            msappdataTempPrefix = 'ms-appdata:///temp/',
+            msappdataLocalPath = Windows.Storage.ApplicationData.current.localFolder.path + '\\',
+            msappdataTempPath = Windows.Storage.ApplicationData.current.temporaryFolder.path + '\\';
+
+        // support for special path start with file:/// or ms-appdata://
+        if (uri.indexOf("file:///") === 0 ) {
+            path = msappdataLocalPath + uri.substr(8).replace('/', '\\');
+        } else if (uri.indexOf(msappdataLocalPrefix) === 0) {
+            path = msappdataLocalPath + uri.replace(msappdataLocalPrefix, '').replace('/', '\\');
+        } else if (uri.indexOf(msappdataTempPrefix) === 0) {
+            path = msappdataTempPath + uri.replace(msappdataTempPrefix, '').replace('/', '\\');
         } else {
             // method should not let read files outside of the [APP HASH]/Local or [APP HASH]/temp folders
-            if (path.indexOf(Windows.Storage.ApplicationData.current.temporaryFolder.path) != 0 &&
-                path.indexOf(Windows.Storage.ApplicationData.current.localFolder.path) != 0) {
+            if (path.indexOf(msappdataTempPath) != 0 && path.indexOf(msappdataLocalPath) != 0) {
                 fail(FileError.NOT_FOUND_ERR);
                 return;
             }

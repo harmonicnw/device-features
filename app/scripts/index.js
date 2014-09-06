@@ -73,7 +73,7 @@ function initApp() {
 	document.getElementById("showDevice").onclick = function() {
 		//alert("platform = " + device.platform);
 		navigator.notification.alert(
-			"Your platform is: " + device.platform,
+			"Your platform is: " + device.platform + "!?!",
 			function(){},
 			'Detect Platform',
 			'Got it.'
